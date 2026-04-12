@@ -4,8 +4,8 @@ import react from '@vitejs/plugin-react';
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  // Relative base for GitHub Pages deployment in any subdirectory
-  base: './',
+  // Absolute base path for GitHub Pages subdirectory deployment
+  base: '/crontab-help/',
   build: {
     outDir: 'dist',
     // sourcemaps expose full TS source in production DevTools and bloat the bundle
