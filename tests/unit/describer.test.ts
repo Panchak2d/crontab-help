@@ -2,46 +2,45 @@ import { describe, it, expect } from 'vitest';
 import { describeCronExpression } from '../../src/core/describer';
 
 describe('describeCronExpression', () => {
+  it('returns a placeholder for an empty expression', () => {
+    const result = describeCronExpression('', 'unix');
+    expect(result.isError).toBe(false);
+    expect(result.description.length).toBeGreaterThan(0);
+  });
+
   it('returns "Every minute" for * * * * *', () => {
     const result = describeCronExpression('* * * * *', 'unix');
     expect(result.isError).toBe(false);
     expect(result.description.toLowerCase()).toContain('every minute');
   });
 
-  it('returns "Every 5 minutes" for */5 * * * *', () => {
+  it('mentions the step interval for */5 * * * *', () => {
     const result = describeCronExpression('*/5 * * * *', 'unix');
     expect(result.isError).toBe(false);
     expect(result.description.toLowerCase()).toContain('5 minutes');
   });
 
-  it('returns a description mentioning 9 for daily-at-9', () => {
+  it('includes the hour for a daily-at-9 expression', () => {
     const result = describeCronExpression('0 9 * * *', 'unix');
     expect(result.isError).toBe(false);
     expect(result.description).toContain('09');
   });
 
-  it('describes weekday expression correctly', () => {
+  it('mentions Monday or Friday for a weekday expression', () => {
     const result = describeCronExpression('0 9 * * 1-5', 'unix');
     expect(result.isError).toBe(false);
-    // cronstrue should mention Monday or Friday or through
     expect(result.description.toLowerCase()).toMatch(/monday|friday|through/);
   });
 
-  it('returns empty prompt for empty expression', () => {
-    const result = describeCronExpression('', 'unix');
-    expect(result.isError).toBe(false);
-    expect(result.description).toContain('Enter');
-  });
-
-  it('handles quartz format by stripping seconds field', () => {
+  it('normalises quartz format before describing', () => {
     const result = describeCronExpression('0 30 9 * * MON-FRI', 'quartz');
     expect(result.isError).toBe(false);
-    expect(result.description).toBeTruthy();
+    expect(result.description.length).toBeGreaterThan(0);
   });
 
-  it('handles aws format by stripping year field', () => {
+  it('normalises aws format before describing', () => {
     const result = describeCronExpression('0 12 * * ? *', 'aws');
     expect(result.isError).toBe(false);
-    expect(result.description).toBeTruthy();
+    expect(result.description.length).toBeGreaterThan(0);
   });
 });

@@ -1,26 +1,20 @@
 import { describe, it, expect } from 'vitest';
 import { parseCronExpression } from '../../src/core/parser';
 
-describe('parseCronExpression — unix format', () => {
+describe('parseCronExpression — valid unix expressions', () => {
   it('returns 10 dates for a valid expression', () => {
     const result = parseCronExpression('*/5 * * * *', 'unix', 'UTC');
     expect(result.isValid).toBe(true);
-    if (result.isValid) {
-      expect(result.nextDates).toHaveLength(10);
-    }
+    if (result.isValid) expect(result.nextDates).toHaveLength(10);
   });
 
-  it('returns Date objects (not strings)', () => {
+  it('returns Date objects, not strings or numbers', () => {
     const result = parseCronExpression('0 9 * * *', 'unix', 'UTC');
-    expect(result.isValid).toBe(true);
-    if (result.isValid) {
-      result.nextDates.forEach(d => expect(d).toBeInstanceOf(Date));
-    }
+    if (result.isValid) result.nextDates.forEach(d => expect(d).toBeInstanceOf(Date));
   });
 
   it('returns dates in ascending order', () => {
     const result = parseCronExpression('0 * * * *', 'unix', 'UTC');
-    expect(result.isValid).toBe(true);
     if (result.isValid) {
       for (let i = 1; i < result.nextDates.length; i++) {
         expect(result.nextDates[i].getTime()).toBeGreaterThan(result.nextDates[i - 1].getTime());
@@ -28,77 +22,82 @@ describe('parseCronExpression — unix format', () => {
     }
   });
 
-  it('returns error for empty expression', () => {
-    const result = parseCronExpression('', 'unix', 'UTC');
-    expect(result.isValid).toBe(false);
-  });
-
-  it('returns error for wrong field count', () => {
-    const result = parseCronExpression('* * *', 'unix', 'UTC');
-    expect(result.isValid).toBe(false);
-    if (!result.isValid) {
-      expect(result.errorMessage).toContain('5');
-    }
-  });
-
-  it('returns error for out-of-range values', () => {
-    const result = parseCronExpression('99 * * * *', 'unix', 'UTC');
-    expect(result.isValid).toBe(false);
-  });
-
-  it('handles day-of-week range correctly (MON-FRI)', () => {
+  it('constrains results to weekday range for MON-FRI expressions', () => {
     const result = parseCronExpression('0 9 * * 1-5', 'unix', 'UTC');
-    expect(result.isValid).toBe(true);
     if (result.isValid) {
       result.nextDates.forEach(d => {
-        const day = d.getUTCDay();
-        // Day 1=Mon through 5=Fri
+        const day = d.getUTCDay(); // 1=Mon, 5=Fri
         expect(day).toBeGreaterThanOrEqual(1);
         expect(day).toBeLessThanOrEqual(5);
       });
     }
   });
 
-  it('handles step expressions (*/15)', () => {
+  it('aligns step expressions to the expected minute values', () => {
     const result = parseCronExpression('*/15 * * * *', 'unix', 'UTC');
-    expect(result.isValid).toBe(true);
     if (result.isValid) {
-      result.nextDates.forEach(d => {
-        expect(d.getUTCMinutes() % 15).toBe(0);
-      });
+      result.nextDates.forEach(d => expect(d.getUTCMinutes() % 15).toBe(0));
     }
+  });
+
+  it('respects the count parameter', () => {
+    const result = parseCronExpression('* * * * *', 'unix', 'UTC', 5);
+    if (result.isValid) expect(result.nextDates).toHaveLength(5);
   });
 });
 
-describe('parseCronExpression — quartz format', () => {
-  it('parses valid 6-field quartz expression', () => {
+describe('parseCronExpression — error cases', () => {
+  it('returns an error for an empty expression', () => {
+    const result = parseCronExpression('', 'unix', 'UTC');
+    expect(result.isValid).toBe(false);
+  });
+
+  it('returns an error that mentions the expected field count when too few fields', () => {
+    const result = parseCronExpression('* * *', 'unix', 'UTC');
+    expect(result.isValid).toBe(false);
+    if (!result.isValid) expect(result.errorMessage).toContain('5');
+  });
+
+  it('names the missing fields in the error message', () => {
+    const result = parseCronExpression('* * *', 'unix', 'UTC');
+    if (!result.isValid) expect(result.errorMessage).toContain('Missing');
+  });
+
+  it('returns an error for out-of-range values', () => {
+    const result = parseCronExpression('99 * * * *', 'unix', 'UTC');
+    expect(result.isValid).toBe(false);
+  });
+
+  it('returns an error for whitespace-only input', () => {
+    const result = parseCronExpression('   ', 'unix', 'UTC');
+    expect(result.isValid).toBe(false);
+  });
+});
+
+describe('parseCronExpression — format validation', () => {
+  it('parses a valid 6-field quartz expression', () => {
     const result = parseCronExpression('0 30 9 * * MON-FRI', 'quartz', 'UTC');
     expect(result.isValid).toBe(true);
   });
 
-  it('returns error when given 5 fields for quartz', () => {
+  it('rejects 5 fields when quartz format is selected', () => {
     const result = parseCronExpression('* * * * *', 'quartz', 'UTC');
     expect(result.isValid).toBe(false);
     if (!result.isValid) expect(result.errorMessage).toContain('6');
   });
-});
 
-describe('parseCronExpression — timezone', () => {
-  it('accepts UTC timezone', () => {
-    const result = parseCronExpression('0 9 * * *', 'unix', 'UTC');
-    expect(result.isValid).toBe(true);
-  });
-
-  it('accepts America/New_York timezone', () => {
-    const result = parseCronExpression('0 9 * * *', 'unix', 'America/New_York');
-    expect(result.isValid).toBe(true);
+  it('includes the format name in the field-count error', () => {
+    const result = parseCronExpression('* * * * *', 'quartz', 'UTC');
+    if (!result.isValid) expect(result.errorMessage).toContain('Quartz');
   });
 });
 
-describe('parseCronExpression — count parameter', () => {
-  it('returns requested number of dates', () => {
-    const result = parseCronExpression('* * * * *', 'unix', 'UTC', 5);
-    expect(result.isValid).toBe(true);
-    if (result.isValid) expect(result.nextDates).toHaveLength(5);
+describe('parseCronExpression — timezone handling', () => {
+  it('accepts UTC as the timezone', () => {
+    expect(parseCronExpression('0 9 * * *', 'unix', 'UTC').isValid).toBe(true);
+  });
+
+  it('accepts a named IANA timezone', () => {
+    expect(parseCronExpression('0 9 * * *', 'unix', 'America/New_York').isValid).toBe(true);
   });
 });

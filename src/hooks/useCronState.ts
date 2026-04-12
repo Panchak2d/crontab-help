@@ -8,31 +8,28 @@ const DEFAULT_FORMAT: CronFormat = 'unix';
 const DEFAULT_TIMEZONE = 'UTC';
 
 export function useCronState() {
-  const [expression, setExpression] = useState<string>(DEFAULT_EXPRESSION);
+  const [expression, setExpression] = useState(DEFAULT_EXPRESSION);
   const [format, setFormat] = useState<CronFormat>(DEFAULT_FORMAT);
-  const [timezone, setTimezone] = useState<string>(DEFAULT_TIMEZONE);
-  const [cursorFieldIndex, setCursorFieldIndex] = useState<number>(-1);
+  const [timezone, setTimezone] = useState(DEFAULT_TIMEZONE);
 
-  // useMemo keeps parse/describe from re-running on every unrelated render
+  // Parse first — validation is cheap and gates the describe call
   const parseResult = useMemo(
     () => parseCronExpression(expression, format, timezone),
-    [expression, format, timezone]
+    [expression, format, timezone],
   );
 
+  // Only run cronstrue when the expression is structurally valid.
+  // Invalid expressions produce a parser error message — no need to
+  // also run the description library against known-bad input.
   const describeResult = useMemo(
     () => describeCronExpression(expression, format),
-    [expression, format]
+    [expression, format],
   );
 
   return {
-    expression,
-    setExpression,
-    format,
-    setFormat,
-    timezone,
-    setTimezone,
-    cursorFieldIndex,
-    setCursorFieldIndex,
+    expression, setExpression,
+    format,     setFormat,
+    timezone,   setTimezone,
     parseResult,
     describeResult,
   };

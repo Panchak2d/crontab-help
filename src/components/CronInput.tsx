@@ -6,27 +6,25 @@ interface Props {
   expression: string;
   format: CronFormat;
   isValid: boolean;
-  onChange: (expr: string) => void;
-  onCursorChange: (fieldIndex: number) => void;
+  onChange: (value: string) => void;
+  onCursorFieldChange: (fieldIndex: number) => void;
 }
 
-function getCursorFieldIndex(input: HTMLInputElement, format: CronFormat): number {
+function getCursorFieldIndex(input: HTMLInputElement, fieldCount: number): number {
   const pos = input.selectionStart ?? 0;
-  const textUpToCursor = input.value.slice(0, pos);
-  const fieldsBefore = textUpToCursor.split(/\s+/).length - 1;
-  const fmt = CRON_FORMATS.find(f => f.id === format);
-  if (!fmt) return -1;
-  return Math.min(fieldsBefore, fmt.fields.length - 1);
+  const fieldsBeforeCursor = input.value.slice(0, pos).split(/\s+/).length - 1;
+  return Math.min(fieldsBeforeCursor, fieldCount - 1);
 }
 
-export function CronInput({ expression, format, isValid, onChange, onCursorChange }: Props) {
+export function CronInput({ expression, format, isValid, onChange, onCursorFieldChange }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const fmt = CRON_FORMATS.find(f => f.id === format);
+  // Resolve format definition once per render, not twice
+  const formatDef = CRON_FORMATS.find(f => f.id === format);
   const [touched, setTouched] = useState(false);
 
-  function handleCursorUpdate() {
-    if (!inputRef.current) return;
-    onCursorChange(getCursorFieldIndex(inputRef.current, format));
+  function updateCursorField() {
+    if (!inputRef.current || !formatDef) return;
+    onCursorFieldChange(getCursorFieldIndex(inputRef.current, formatDef.fields.length));
   }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -37,12 +35,6 @@ export function CronInput({ expression, format, isValid, onChange, onCursorChang
   const hasContent = expression.trim().length > 0;
   const showValidation = touched && hasContent;
 
-  const validityClass = showValidation
-    ? isValid ? 'validity-indicator--valid' : 'validity-indicator--invalid'
-    : '';
-
-  const visibilityClass = showValidation ? 'validity-indicator--visible' : '';
-
   return (
     <div className="cron-input-wrapper">
       <input
@@ -51,17 +43,23 @@ export function CronInput({ expression, format, isValid, onChange, onCursorChang
         className="cron-input"
         value={expression}
         onChange={handleChange}
-        onKeyUp={handleCursorUpdate}
-        onClick={handleCursorUpdate}
-        onFocus={handleCursorUpdate}
-        placeholder={fmt?.placeholder ?? '* * * * *'}
+        onKeyUp={updateCursorField}
+        onClick={updateCursorField}
+        onFocus={updateCursorField}
+        placeholder={formatDef?.placeholder ?? '* * * * *'}
         spellCheck={false}
         autoComplete="off"
         autoCorrect="off"
         aria-label="Cron expression"
         aria-invalid={showValidation && !isValid}
       />
-      <span className={`validity-indicator ${validityClass} ${visibilityClass}`}>
+      <span
+        className={[
+          'validity-indicator',
+          showValidation ? (isValid ? 'validity-indicator--valid' : 'validity-indicator--invalid') : '',
+          showValidation ? 'validity-indicator--visible' : '',
+        ].join(' ').trim()}
+      >
         {showValidation && (isValid ? 'valid' : 'invalid')}
       </span>
     </div>

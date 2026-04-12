@@ -8,22 +8,21 @@ export interface DescribeResult {
 }
 
 /**
- * Converts a cron expression to a plain-English description.
- * Uses cronstrue v3.14 under the hood.
- * Normalizes expression to Unix 5-field before describing.
+ * Converts a cron expression into a plain-English description.
+ *
+ * Uses cronstrue after normalizing to Unix 5-field format.
+ * Returns a placeholder when the expression is empty so the
+ * UI always has something to display.
  */
-export function describeCronExpression(
-  expression: string,
-  format: CronFormat
-): DescribeResult {
+export function describeCronExpression(expression: string, format: CronFormat): DescribeResult {
   const trimmed = expression.trim();
+
   if (!trimmed) {
-    return { description: 'Enter a cron expression above', isError: false };
+    return { description: 'Type a cron expression above to see what it means', isError: false };
   }
 
   try {
     const unixExpr = normalizeToUnix(trimmed, format);
-    // Use 24-hour format for clarity in international context
     const description = cronstrue.toString(unixExpr, {
       use24HourTimeFormat: true,
       throwExceptionOnParseError: true,

@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import type { CronFormat } from '../types';
 import { CRON_PRESETS } from '../utils/constants';
 
@@ -6,38 +7,48 @@ interface Props {
   onSelect: (expression: string, format: CronFormat) => void;
 }
 
-// Group presets by time-scale category for scannable layout
-const PRESET_GROUPS: { label: string; match: (expr: string) => boolean }[] = [
+interface PresetGroup {
+  label: string;
+  match: (expression: string) => boolean;
+}
+
+// Ordered from most specific to least — each preset lands in the first matching group
+const PRESET_GROUPS: PresetGroup[] = [
   { label: 'Minutes',  match: e => /^\*\/\d+\s\*/.test(e) || e === '* * * * *' },
   { label: 'Hourly',   match: e => /^0\s\*/.test(e) || /^0\s\*\//.test(e) },
-  { label: 'Daily',    match: e => /^0\s\d+\s\*\s\*\s\*$/.test(e) || /^0\s[\d,]+\s\*\s\*\s\*$/.test(e) },
-  { label: 'Weekly',   match: e => /\s[0-7]$/.test(e) || /\s[0-7],[0-7]$/.test(e) || /\s[0-7]-[0-7]$/.test(e) },
-  { label: 'Monthly',  match: e => /^0\s0\s[0-9]/.test(e) },
+  { label: 'Daily',    match: e => /^0\s[\d,]+\s\*\s\*\s\*$/.test(e) },
+  { label: 'Weekly',   match: e => /\s[0-7](,[0-7])*$/.test(e) || /\s[0-7]-[0-7]$/.test(e) },
+  { label: 'Monthly',  match: e => /^0\s0\s[0-9L]/.test(e) },
   { label: 'Other',    match: () => true },
 ];
 
-function groupPresets(format: CronFormat) {
-  const forCurrentFormat = CRON_PRESETS.filter(p => p.format === format);
-  const others = CRON_PRESETS.filter(p => p.format !== format);
-  const all = [...forCurrentFormat, ...others];
+function buildGroups(format: CronFormat) {
+  // Show current-format presets first, others after
+  const sorted = [
+    ...CRON_PRESETS.filter(p => p.format === format),
+    ...CRON_PRESETS.filter(p => p.format !== format),
+  ];
 
-  const groups: { label: string; presets: typeof CRON_PRESETS }[] = [];
   const assigned = new Set<string>();
+  const groups: { label: string; presets: typeof CRON_PRESETS }[] = [];
 
   for (const group of PRESET_GROUPS) {
-    const matched = all.filter(
-      p => !assigned.has(p.expression + p.format) && group.match(p.expression)
-    );
+    const matched = sorted.filter(p => {
+      const key = p.expression + p.format;
+      return !assigned.has(key) && group.match(p.expression);
+    });
     if (matched.length > 0) {
       matched.forEach(p => assigned.add(p.expression + p.format));
       groups.push({ label: group.label, presets: matched });
     }
   }
+
   return groups;
 }
 
 export function PresetPicker({ currentFormat, onSelect }: Props) {
-  const groups = groupPresets(currentFormat);
+  // CRON_PRESETS is static — only rebuild groups when the selected format changes
+  const groups = useMemo(() => buildGroups(currentFormat), [currentFormat]);
 
   return (
     <section className="preset-picker">

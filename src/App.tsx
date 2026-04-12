@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useCronState } from './hooks/useCronState';
 import { useUrlSync, readFromUrl } from './hooks/useUrlSync';
 import { FormatSelector } from './components/FormatSelector';
@@ -13,19 +13,25 @@ import type { CronFormat } from './types';
 export default function App() {
   const {
     expression, setExpression,
-    format, setFormat,
-    timezone, setTimezone,
-    cursorFieldIndex, setCursorFieldIndex,
+    format,     setFormat,
+    timezone,   setTimezone,
     parseResult, describeResult,
   } = useCronState();
 
+  // Cursor field index is UI state — it belongs here, not in the data hook
+  const [cursorFieldIndex, setCursorFieldIndex] = useState(-1);
+
+  // Restore expression + format from URL hash on first load
   useEffect(() => {
     const { expression: urlExpr, format: urlFmt } = readFromUrl();
     if (urlExpr) setExpression(urlExpr);
     if (urlFmt)  setFormat(urlFmt);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // setExpression and setFormat are stable useState setters — intentionally
+    // excluded from deps to run only on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Keep the URL hash in sync so every expression is shareable
   useUrlSync(expression, format);
 
   function handlePresetSelect(expr: string, fmt: CronFormat) {
@@ -33,13 +39,12 @@ export default function App() {
     setFormat(fmt);
   }
 
-  const zoneState = !expression.trim()
+  const edgeState = !expression.trim()
     ? 'empty'
     : parseResult.isValid ? 'valid' : 'invalid';
 
   return (
     <div className="app">
-      {/* ── Header ── */}
       <header className="app-header">
         <h1 className="app-title">
           <span className="title-cron">crontab</span>
@@ -60,13 +65,9 @@ export default function App() {
       </header>
 
       <main className="app-main">
-        {/* ── Editor Zone ── */}
-        <div className={`editor-zone editor-zone--${zoneState}`}>
-
-          {/* Format tabs */}
+        <div className={`editor-zone editor-zone--${edgeState}`}>
           <FormatSelector currentFormat={format} onChange={setFormat} />
 
-          {/* Differentiator strip — what makes this different from crontab.guru */}
           <div className="format-support-strip" aria-label="Supported formats">
             <span className="format-support-label">Supports</span>
             <span className="format-support-badge">Unix / Linux</span>
@@ -75,23 +76,20 @@ export default function App() {
             <span className="format-support-badge">Quartz Scheduler</span>
           </div>
 
-          {/* Expression input */}
           <CronInput
             expression={expression}
             format={format}
             isValid={parseResult.isValid}
             onChange={setExpression}
-            onCursorChange={setCursorFieldIndex}
+            onCursorFieldChange={setCursorFieldIndex}
           />
 
-          {/* Plain-English description */}
           <Description
             description={describeResult.description}
             isError={describeResult.isError}
             isEmpty={!expression.trim()}
           />
 
-          {/* Field-by-field breakdown */}
           <FieldExplainer
             expression={expression}
             format={format}
@@ -99,7 +97,6 @@ export default function App() {
           />
         </div>
 
-        {/* ── Panels Row ── */}
         <div className="panels-row">
           <NextRuns
             nextDates={parseResult.isValid ? parseResult.nextDates : []}
