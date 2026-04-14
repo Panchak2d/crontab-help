@@ -2,87 +2,64 @@
 
 # crontab.help
 
-**The open-source cron expression editor that actually explains what your cron does.**
+**Decode any cron expression instantly. See plain English, next run times, and a shareable link.**
 
-[![MIT License](https://img.shields.io/badge/license-MIT-3fb950?style=flat-square)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-43%20passing-3fb950?style=flat-square)](#)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-388bfd?style=flat-square)](CONTRIBUTING.md)
+[![MIT License](https://img.shields.io/badge/license-MIT-22c55e?style=flat-square)](LICENSE)
+[![Tests](https://img.shields.io/badge/tests-51%20passing-22c55e?style=flat-square)](#)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-3b82f6?style=flat-square)](https://github.com/Panchak2d/crontab-help/issues)
 
-**[→ Open crontab.help](https://Panchak2d.github.io/crontab-help)**
+**[→ Open the tool](https://panchak2d.github.io/crontab-help/)**
 
 </div>
 
 ---
 
-## What is it?
+## What it does
 
-Cron expressions are powerful but cryptic. `0 */4 * * 1-5` — what does that actually run? When does it run next?
+You have a cron expression like `0 */4 * * 1-5`. You need to know:
 
-**crontab.help** translates any cron expression into plain English, shows you the next 10 scheduled run times in your timezone, and explains each field as you type. No account. No backend. Runs entirely in your browser.
+- What does this actually mean in plain English?
+- When does it run next?
+- Is it correct before I push it to production?
+
+Paste it in. Get answers immediately. No account. No install. Runs entirely in your browser.
 
 ---
 
-## Features
+## Supported formats
 
-| | |
-|---|---|
-| **Plain-English description** | `*/5 * * * *` → "Every 5 minutes" — instantly, as you type |
-| **Next 10 run times** | Exact datetimes in your chosen timezone |
-| **Field explainer** | Click any part of your expression to see what it controls |
-| **4 cron formats** | Unix, Quartz (Spring / AWS Lambda), GitHub Actions, AWS EventBridge |
-| **20+ presets** | One click to populate common schedules |
-| **Shareable links** | Every expression is encoded in the URL — copy and share with no backend |
+| Format | Fields | Used by |
+|---|---|---|
+| **Unix / Linux** | `min hour dom month dow` | crontab, systemd timers, most Linux schedulers |
+| **GitHub Actions** | `min hour dom month dow` | `.github/workflows/*.yml` `schedule:` triggers |
+| **Quartz Scheduler** | `sec min hour dom month dow` | Spring `@Scheduled`, Quartz, AWS Lambda |
+| **AWS EventBridge** | `min hour dom month dow year` | CloudWatch Events, EventBridge rules |
+
+Switch formats using the tabs above the input — field labels and ranges update automatically.
 
 ---
 
 ## How to use it
 
-**1. Type your cron expression** into the big input box at the top.
+**1. Type or paste your expression** into the input at the top.
 
 ```
-*/30 * * * *
+0 */4 * * 1-5
 ```
 
-The description updates instantly. A green border means valid. Red means something is wrong.
-
-**2. Read the description** — shown directly below the input in plain English.
+**2. Read the plain-English description** directly below the input.
 
 ```
-Every 30 minutes
+At 00:00, every 4 hours, Monday through Friday
 ```
 
-**3. Check the field explainer** — five (or six) pills below the description, one per field. Click anywhere in your expression to highlight the field your cursor is in and see its allowed range.
+**3. Click any field** in the expression to highlight it in the field breakdown and see its allowed range.
 
-```
-*/30    *      *           *       *
-MINUTE  HOUR   DAY(MONTH)  MONTH   DAY(WEEK)
-0–59    0–23   1–31        1–12    0–7
-```
+**4. Check the next run times** in the left panel. Use the dropdown to switch timezones.
 
-**4. See the next 10 run times** — in the left panel. Use the dropdown to switch timezones.
+**5. Pick a preset** from the right panel to instantly populate the editor with a common schedule.
 
-```
-#1   Fri, Apr 11, 2026, 14:00:00   in 4m
-#2   Fri, Apr 11, 2026, 14:30:00   in 34m
-...
-```
-
-**5. Use a preset** — click any entry in the right panel to instantly populate the editor with a common expression.
-
-**6. Share your expression** — click the **Share** button in the header. The URL already contains your expression (base64-encoded in the hash) — anyone with the link sees the same expression immediately, no account needed.
-
----
-
-## Supported cron formats
-
-| Format | Fields | Used by |
-|---|---|---|
-| **Unix / Linux** | `min hour dom month dow` | crontab, systemd, most schedulers |
-| **Quartz** | `sec min hour dom month dow` | Spring `@Scheduled`, Quartz Scheduler, AWS Lambda |
-| **GitHub Actions** | `min hour dom month dow` | `.github/workflows/*.yml` schedule triggers |
-| **AWS EventBridge** | `min hour dom month dow year` | CloudWatch Events, EventBridge rules |
-
-Switch between formats using the tabs above the input. The field labels and ranges update automatically.
+**6. Share your expression** — click **Share** to copy the URL. The expression is encoded in the link itself, so anyone who opens it sees the same expression immediately.
 
 ---
 
@@ -93,11 +70,11 @@ Switch between formats using the tabs above the input. The field labels and rang
 | `* * * * *` | Every minute |
 | `*/5 * * * *` | Every 5 minutes |
 | `0 * * * *` | Every hour, on the hour |
-| `0 9 * * *` | Daily at 9:00 AM |
-| `0 9 * * 1-5` | Weekdays at 9:00 AM (Mon–Fri) |
+| `0 9 * * *` | Daily at 09:00 |
+| `0 9 * * 1-5` | Weekdays at 09:00 (Mon–Fri) |
 | `0 0 * * 0` | Every Sunday at midnight |
 | `0 0 1 * *` | First of every month at midnight |
-| `0 0 1 1 *` | Once a year, January 1st at midnight |
+| `0 0 1 1 *` | Once a year, 1st January |
 
 ---
 
@@ -108,42 +85,54 @@ Switch between formats using the tabs above the input. The field labels and rang
 | `*` | Any value | `* * * * *` — every minute |
 | `*/n` | Every n units | `*/15 * * * *` — every 15 minutes |
 | `a-b` | Range | `1-5` — Monday through Friday |
-| `a,b,c` | List | `1,3,5` — Monday, Wednesday, Friday |
-| `L` | Last | `L` in day-of-month — last day of month |
+| `a,b,c` | List | `1,3,5` — Mon, Wed, Fri |
+| `L` | Last | Last day of the month (Quartz/AWS) |
 | `W` | Nearest weekday | `15W` — nearest weekday to the 15th |
-| `#` | Nth occurrence | `2#1` — first Monday of the month |
-| `?` | No specific value (Quartz/AWS) | Use in dom or dow when the other is specified |
+| `#` | Nth weekday | `2#1` — first Monday of the month |
+| `?` | No specific value | Used in dom or dow when the other is set (Quartz/AWS) |
+
+---
+
+## Why this instead of crontab.guru?
+
+crontab.guru only supports Unix 5-field cron. crontab.help also supports:
+
+- **GitHub Actions** — test your workflow schedule before you push
+- **AWS EventBridge** — validate CloudWatch/EventBridge rules with the year field
+- **Quartz Scheduler** — 6-field format used by Spring and AWS Lambda
+
+Plus shareable links — paste a URL into a PR comment so your reviewer can see exactly what your schedule does.
 
 ---
 
 ## Contributing
 
-Contributions are welcome. The easiest ways to help:
+All contributions are welcome.
 
-**Add a preset** — edit [`src/utils/constants.ts`](src/utils/constants.ts), add one line to `CRON_PRESETS`:
+**Add a preset** — edit [`src/utils/constants.ts`](src/utils/constants.ts), add one object to `CRON_PRESETS`:
+
 ```ts
 { label: 'Every 10 minutes', expression: '*/10 * * * *', format: 'unix', description: 'Runs every 10 minutes' }
 ```
 
 **Add a timezone** — add a string to the `TIMEZONES` array in the same file.
 
-**Report a bug** — open an [issue](https://github.com/Panchak2d/crontab-help/issues) with the expression that behaved unexpectedly.
-
-**Improve the UI** — the CSS design system lives in [`src/index.css`](src/index.css) and uses CSS custom properties throughout — easy to fork and retheme.
+**Report a bug** — open an [issue](https://github.com/Panchak2d/crontab-help/issues) and include the expression that misbehaved.
 
 ```bash
 git clone https://github.com/Panchak2d/crontab-help
 cd crontab-help
 npm install
 npm run dev      # http://localhost:5173
-npm test         # 43 unit tests
+npm test         # 51 unit tests
+npm run build    # production build
 ```
 
 ---
 
 ## Tech stack
 
-Built with [React 19](https://react.dev), [TypeScript](https://www.typescriptlang.org), [Vite](https://vite.dev), [cron-parser](https://www.npmjs.com/package/cron-parser), and [cronstrue](https://www.npmjs.com/package/cronstrue). Zero backend. Deploys for free on GitHub Pages.
+[React 19](https://react.dev) · [TypeScript](https://www.typescriptlang.org) · [Vite](https://vite.dev) · [cron-parser 5](https://www.npmjs.com/package/cron-parser) · [cronstrue 3](https://www.npmjs.com/package/cronstrue) · Zero backend · Free on GitHub Pages
 
 ---
 

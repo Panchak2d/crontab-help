@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://Panchak2d.github.io/crontab-help/sitemap.xml
+Sitemap: https://panchak2d.github.io/crontab-help/sitemap.xml
