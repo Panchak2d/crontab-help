@@ -8,6 +8,11 @@ import { FieldExplainer } from './components/FieldExplainer';
 import { NextRuns } from './components/NextRuns';
 import { PresetPicker } from './components/PresetPicker';
 import { ShareButton } from './components/ShareButton';
+import { ThemeToggle } from './components/ThemeToggle';
+import { CopyActions } from './components/CopyActions';
+import { SyntaxReference } from './components/SyntaxReference';
+import { ScheduleBuilder } from './components/ScheduleBuilder';
+import { convertExpression } from './core/builder';
 import type { CronFormat } from './types';
 
 export default function App() {
@@ -29,6 +34,12 @@ export default function App() {
     setFormat(fmt);
   }
 
+  function handleFormatChange(next: CronFormat) {
+    const converted = convertExpression(expression, format, next);
+    if (converted !== null) setExpression(converted);
+    setFormat(next);
+  }
+
   const edgeState = !expression.trim()
     ? 'empty'
     : parseResult.isValid ? 'valid' : 'invalid';
@@ -42,6 +53,7 @@ export default function App() {
           <span className="title-help">help</span>
         </h1>
         <div className="header-actions">
+          <ThemeToggle />
           <ShareButton />
           <a
             className="github-link"
@@ -56,7 +68,7 @@ export default function App() {
 
       <main className="app-main">
         <div className={`editor-zone editor-zone--${edgeState}`}>
-          <FormatSelector currentFormat={format} onChange={setFormat} />
+          <FormatSelector currentFormat={format} onChange={handleFormatChange} />
 
           <div className="format-support-strip" aria-label="Supported formats">
             <span className="format-support-label">Supports</span>
@@ -80,12 +92,24 @@ export default function App() {
             isEmpty={!expression.trim()}
           />
 
+          <CopyActions
+            expression={expression}
+            format={format}
+            description={describeResult.description}
+            nextDates={parseResult.isValid ? parseResult.nextDates : []}
+            timezone={timezone}
+            isValid={parseResult.isValid && !describeResult.isError}
+          />
+
           <FieldExplainer
             expression={expression}
             format={format}
             activeFieldIndex={cursorFieldIndex}
+            errorFieldIndex={parseResult.isValid ? -1 : parseResult.fieldIndex}
           />
         </div>
+
+        <ScheduleBuilder expression={expression} format={format} onChange={setExpression} />
 
         <div className="panels-row">
           <NextRuns
@@ -100,11 +124,13 @@ export default function App() {
             onSelect={handlePresetSelect}
           />
         </div>
+
+        <SyntaxReference currentFormat={format} />
       </main>
 
       <footer className="app-footer">
         <p>
-          Open source · MIT License ·{' '}
+          Press <kbd>/</kbd> to focus the input · Open source · MIT License ·{' '}
           <a
             href="https://github.com/Panchak2d/crontab-help"
             target="_blank"

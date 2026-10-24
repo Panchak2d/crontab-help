@@ -5,7 +5,7 @@
 **Decode any cron expression instantly. See plain English, next run times, and a shareable link.**
 
 [![MIT License](https://img.shields.io/badge/license-MIT-22c55e?style=flat-square)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-53%20passing-22c55e?style=flat-square)](#)
+[![Tests](https://img.shields.io/badge/tests-116%20passing-22c55e?style=flat-square)](#)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-3b82f6?style=flat-square)](https://github.com/Panchak2d/crontab-help/issues)
 
 **[→ Open the tool](https://panchak2d.github.io/crontab-help/)**
@@ -35,7 +35,7 @@ Paste it in. Get answers immediately. No account. No install. Runs entirely in y
 | **Quartz Scheduler** | `sec min hour dom month dow` | Spring `@Scheduled`, Quartz, AWS Lambda |
 | **AWS EventBridge** | `min hour dom month dow year` | CloudWatch Events, EventBridge rules |
 
-Switch formats using the tabs above the input — field labels and ranges update automatically.
+Switch formats using the tabs above the input — field labels and ranges update automatically. If the expression is simple enough for the schedule builder, it is rewritten for the new format (field count, weekday numbering, `?` placement); otherwise it is left exactly as you typed it.
 
 ---
 
@@ -55,11 +55,15 @@ At 00:00, every 4 hours, Monday through Friday
 
 **3. Click any field** in the expression to highlight it in the field breakdown and see its allowed range.
 
-**4. Check the next run times** in the left panel. Use the dropdown to switch timezones.
+**4. Check the next run times** in the left panel. Click the timezone field and type or pick any IANA zone (e.g. `Asia/Kolkata`).
 
-**5. Pick a preset** from the right panel to instantly populate the editor with a common schedule.
+**5. Pick a preset** from the right panel to instantly populate the editor with a common schedule, or open the **Schedule builder** under the editor and pick minutes, hours, days and months. It writes the expression for the current format. Expressions it can't represent (`L`, `W`, `#`, odd steps, day-of-month plus day-of-week in Unix) show a note and stay untouched.
 
-**6. Share your expression** — click **Share** to copy the URL. The expression is encoded in the link itself, so anyone who opens it sees the same expression immediately.
+**6. Copy it.** *Copy expression* copies the raw expression; *Copy explanation* copies the expression, plain-English meaning, timezone and next runs. Press `/` anywhere to focus the input. The header button switches between dark and light mode (follows your system by default).
+
+**7. Fix errors fast.** An invalid field is highlighted in the breakdown and the message names it and the allowed range. Open *Syntax differences between schedulers* under the panels for field counts, weekday numbering, special characters and time zones per format.
+
+**8. Share your expression** — click **Share** to copy the URL. The expression is encoded in the link itself, so anyone who opens it sees the same expression immediately.
 
 ---
 
@@ -115,7 +119,7 @@ All contributions are welcome.
 { label: 'Every 10 minutes', expression: '*/10 * * * *', format: 'unix', description: 'Runs every 10 minutes' }
 ```
 
-**Add a timezone** — add a string to the `TIMEZONES` array in the same file.
+**Add a timezone** — add a string to the `COMMON_TIMEZONES` array in the same file.
 
 **Report a bug** — open an [issue](https://github.com/Panchak2d/crontab-help/issues) and include the expression that misbehaved.
 
@@ -124,7 +128,7 @@ git clone https://github.com/Panchak2d/crontab-help
 cd crontab-help
 npm install
 npm run dev      # http://localhost:5173
-npm test         # 53 unit tests
+npm test         # 116 unit tests
 npm run build    # production build
 ```
 

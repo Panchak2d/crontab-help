@@ -1,6 +1,7 @@
 import cronstrue from 'cronstrue';
 import type { CronFormat } from '../types';
 import { normalizeToUnix } from './formats';
+import { validateExpression } from './validator';
 
 export interface DescribeResult {
   description: string;
@@ -20,6 +21,9 @@ export function describeCronExpression(expression: string, format: CronFormat): 
   if (!trimmed) {
     return { description: 'Type a cron expression above to see what it means', isError: false };
   }
+
+  const [issue] = validateExpression(trimmed, format);
+  if (issue) return { description: issue.message, isError: true };
 
   try {
     const unixExpr = normalizeToUnix(trimmed, format);

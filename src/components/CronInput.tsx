@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { CronFormat } from '../types';
 import { CRON_FORMATS } from '../utils/constants';
 
@@ -21,6 +21,19 @@ export function CronInput({ expression, format, isValid, onChange, onCursorField
   // Resolve format definition once per render, not twice
   const formatDef = CRON_FORMATS.find(f => f.id === format);
   const [touched, setTouched] = useState(false);
+
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
+      const el = e.target as HTMLElement | null;
+      if (el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName))) return;
+      e.preventDefault();
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, []);
 
   function updateCursorField() {
     if (!inputRef.current || !formatDef) return;
@@ -51,6 +64,7 @@ export function CronInput({ expression, format, isValid, onChange, onCursorField
         autoComplete="off"
         autoCorrect="off"
         aria-label="Cron expression"
+        aria-keyshortcuts="/"
         aria-invalid={showValidation && !isValid}
       />
       <span

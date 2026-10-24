@@ -4,6 +4,7 @@ import { defineConfig } from 'vitest/config';
 // into vitest's defineConfig (which bundles Vite 5 internally) causes a TS2769
 // plugin type conflict. Vitest handles JSX/TSX transformation natively for tests.
 export default defineConfig({
+  esbuild: { jsx: 'automatic' },
   test: {
     environment: 'jsdom',
     globals: true,

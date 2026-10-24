@@ -1,4 +1,5 @@
-import { TIMEZONES } from '../utils/constants';
+import { useEffect, useState } from 'react';
+import { getTimezones, isValidTimezone } from '../utils/timezones';
 import { formatNextRunDate, formatRelativeTime } from '../utils/formatDate';
 
 interface Props {
@@ -11,21 +12,32 @@ interface Props {
 
 export function NextRuns({ nextDates, timezone, onTimezoneChange, isValid, errorMessage }: Props) {
   const nextRun = nextDates[0] ?? null;
+  const [draft, setDraft] = useState(timezone);
+  useEffect(() => setDraft(timezone), [timezone]);
+
+  function handleTimezoneInput(value: string) {
+    setDraft(value);
+    if (isValidTimezone(value)) onTimezoneChange(value);
+  }
 
   return (
     <section className="next-runs-panel">
       <div className="panel-header">
         <span className="panel-label">Next 10 Runs</span>
-        <select
-          className="tz-select"
-          value={timezone}
-          onChange={e => onTimezoneChange(e.target.value)}
-          aria-label="Timezone"
-        >
-          {TIMEZONES.map(tz => (
-            <option key={tz} value={tz}>{tz}</option>
-          ))}
-        </select>
+        <input
+          className={`tz-select${isValidTimezone(draft) ? '' : ' tz-select--invalid'}`}
+          list="tz-list"
+          value={draft}
+          onChange={e => handleTimezoneInput(e.target.value)}
+          onBlur={() => setDraft(timezone)}
+          onFocus={e => e.target.select()}
+          spellCheck={false}
+          autoComplete="off"
+          aria-label="Timezone (IANA name)"
+        />
+        <datalist id="tz-list">
+          {getTimezones().map(tz => <option key={tz} value={tz} />)}
+        </datalist>
       </div>
 
       {!isValid ? (

@@ -6,6 +6,9 @@ import '@fontsource/jetbrains-mono/latin-700.css';
 import './index.css';
 import App from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { applyTheme, getInitialTheme } from './utils/theme';
+
+applyTheme(getInitialTheme());
 
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Root element #root not found in index.html');

@@ -6,9 +6,10 @@ interface Props {
   expression: string;
   format: CronFormat;
   activeFieldIndex: number;
+  errorFieldIndex?: number;
 }
 
-export function FieldExplainer({ expression, format, activeFieldIndex }: Props) {
+export function FieldExplainer({ expression, format, activeFieldIndex, errorFieldIndex = -1 }: Props) {
   const formatDef = CRON_FORMATS.find(f => f.id === format);
   if (!formatDef) return null;
 
@@ -21,7 +22,7 @@ export function FieldExplainer({ expression, format, activeFieldIndex }: Props) 
         return (
           <div
             key={field.name}
-            className={`field-pill${isActive ? ' field-pill--active' : ''}`}
+            className={`field-pill${isActive ? ' field-pill--active' : ''}${i === errorFieldIndex ? ' field-pill--error' : ''}`}
             title={`${field.label}: ${field.range}`}
           >
             <span className="field-value">{exprFields[i] ?? '*'}</span>

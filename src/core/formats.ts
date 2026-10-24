@@ -23,25 +23,43 @@ export function expectedFieldCount(format: CronFormat): number {
 }
 
 /**
+ * Quartz and AWS number weekdays 1–7 (1 = Sunday); Unix uses 0–6 (0 = Sunday).
+ * Shifts numeric weekdays down by one; names, steps and the #n occurrence are left alone.
+ */
+function shiftWeekdayToUnix(field: string): string {
+  return field
+    .split(',')
+    .map(item => {
+      if (item === 'L') return '6';
+      const [base, ...step] = item.split('/');
+      const [day, ...occurrence] = base.split('#');
+      const shifted = day.replace(/\d+/g, n => String(Math.max(Number(n) - 1, 0)));
+      return [[shifted, ...occurrence].join('#'), ...step].join('/');
+    })
+    .join(',');
+}
+
+/**
  * Normalizes any cron format to a 5-field Unix expression
  * that cron-parser can consume.
  *
- * Quartz  → strip leading seconds field
- * AWS     → strip trailing year field, replace '?' with '*'
+ * Quartz  → strip leading seconds field, renumber weekdays
+ * AWS     → strip trailing year field, replace '?' with '*', renumber weekdays
  * Unix/GH → pass through, replacing any '?' with '*' for safety
  */
 export function normalizeToUnix(expression: string, format: CronFormat): string {
   const fields = expression.trim().split(/\s+/);
 
   if (format === 'quartz' && fields.length === 6) {
-    return fields.slice(1).join(' ');
+    const five = fields.slice(1).map(f => (f === '?' ? '*' : f));
+    five[4] = shiftWeekdayToUnix(five[4]);
+    return five.join(' ');
   }
 
   if (format === 'aws' && fields.length === 6) {
-    return fields
-      .slice(0, 5)
-      .map(f => (f === '?' ? '*' : f))
-      .join(' ');
+    const five = fields.slice(0, 5).map(f => (f === '?' ? '*' : f));
+    five[4] = shiftWeekdayToUnix(five[4]);
+    return five.join(' ');
   }
 
   return fields.map(f => (f === '?' ? '*' : f)).join(' ');

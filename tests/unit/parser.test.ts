@@ -76,7 +76,7 @@ describe('parseCronExpression — error cases', () => {
 
 describe('parseCronExpression — format validation', () => {
   it('parses a valid 6-field quartz expression', () => {
-    const result = parseCronExpression('0 30 9 * * MON-FRI', 'quartz', 'UTC');
+    const result = parseCronExpression('0 30 9 ? * MON-FRI', 'quartz', 'UTC');
     expect(result.isValid).toBe(true);
   });
 

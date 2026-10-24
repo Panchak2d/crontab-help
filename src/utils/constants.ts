@@ -1,4 +1,4 @@
-import type { CronFormatDefinition, CronPreset } from '../types';
+import type { CronFormat, CronFormatDefinition, CronPreset } from '../types';
 
 export const CRON_FORMATS: CronFormatDefinition[] = [
   {
@@ -74,7 +74,7 @@ export const CRON_PRESETS: CronPreset[] = [
   { label: 'Every Monday 8 AM',    expression: '0 8 * * 1',          format: 'unix',   description: 'Runs every Monday at 08:00' },
   { label: 'Weekly on Sunday',     expression: '0 0 * * 0',          format: 'unix',   description: 'Runs every Sunday at midnight' },
   { label: 'First of month',       expression: '0 0 1 * *',          format: 'unix',   description: 'Runs at midnight on the 1st of each month' },
-  { label: 'Last day of month',    expression: '0 0 L * *',          format: 'quartz', description: 'Runs on the last day of every month (Quartz)' },
+  { label: 'Last day of month',    expression: '0 0 0 L * ?',        format: 'quartz', description: 'Runs on the last day of every month (Quartz)' },
   { label: 'Every quarter',        expression: '0 0 1 1,4,7,10 *',   format: 'unix',   description: 'Runs on 1st Jan, Apr, Jul, Oct' },
   { label: 'Twice daily',          expression: '0 8,20 * * *',       format: 'unix',   description: 'Runs at 08:00 and 20:00 every day' },
   { label: 'Yearly (Jan 1st)',     expression: '0 0 1 1 *',          format: 'unix',   description: 'Runs at midnight on 1st January' },
@@ -82,7 +82,7 @@ export const CRON_PRESETS: CronPreset[] = [
   { label: 'AWS: business hours',  expression: '0 8-18 ? * MON-FRI *', format: 'aws',  description: 'Every hour, Mon–Fri 08:00–18:00' },
 ];
 
-export const TIMEZONES: string[] = [
+export const COMMON_TIMEZONES: string[] = [
   'UTC',
   'America/New_York',
   'America/Chicago',
@@ -95,4 +95,51 @@ export const TIMEZONES: string[] = [
   'Asia/Tokyo',
   'Asia/Shanghai',
   'Australia/Sydney',
+];
+
+export interface SyntaxRow {
+  label: string;
+  values: Record<CronFormat, string>;
+}
+
+export const SYNTAX_REFERENCE: SyntaxRow[] = [
+  { label: 'Fields', values: {
+    unix: '5', github: '5', quartz: '6 (seconds first)', aws: '6 (year last)',
+  } },
+  { label: 'Order', values: {
+    unix: 'min hour dom month dow',
+    github: 'min hour dom month dow',
+    quartz: 'sec min hour dom month dow',
+    aws: 'min hour dom month dow year',
+  } },
+  { label: 'Weekday numbers', values: {
+    unix: '0–7 (0 and 7 = Sun)',
+    github: '0–6 (0 = Sun)',
+    quartz: '1–7 (1 = Sun)',
+    aws: '1–7 (1 = Sun)',
+  } },
+  { label: 'Special characters', values: {
+    unix: '* , - /',
+    github: '* , - /',
+    quartz: '* , - / ? L W #',
+    aws: '* , - / ? L W #',
+  } },
+  { label: '"?" rule', values: {
+    unix: 'Not supported',
+    github: 'Not supported',
+    quartz: '? in day-of-month or day-of-week (exactly one)',
+    aws: '? in day-of-month or day-of-week (exactly one)',
+  } },
+  { label: 'Time zone', values: {
+    unix: 'Server / cron daemon',
+    github: 'Always UTC',
+    quartz: 'Set on the trigger',
+    aws: 'Rules: UTC. Scheduler: per schedule',
+  } },
+  { label: 'Example', values: {
+    unix: '0 9 * * 1-5',
+    github: '0 2 * * *',
+    quartz: '0 0 9 ? * MON-FRI',
+    aws: '0 9 ? * MON-FRI *',
+  } },
 ];

@@ -1,6 +1,7 @@
 import { CronExpressionParser } from 'cron-parser';
 import type { CronFormat } from '../types';
 import { normalizeToUnix, expectedFieldCount, splitFields, formatLabel } from './formats';
+import { validateExpression } from './validator';
 
 export interface ParserSuccess {
   isValid: true;
@@ -10,6 +11,7 @@ export interface ParserSuccess {
 export interface ParserError {
   isValid: false;
   errorMessage: string;
+  fieldIndex?: number;
 }
 
 export type ParserResult = ParserSuccess | ParserError;
@@ -85,6 +87,11 @@ export function parseCronExpression(
       isValid: false,
       errorMessage: `${formatLabel(format)} needs ${expected} fields, got ${got}. ${hint}.`,
     };
+  }
+
+  const [firstIssue] = validateExpression(trimmed, format);
+  if (firstIssue) {
+    return { isValid: false, errorMessage: firstIssue.message, fieldIndex: firstIssue.fieldIndex };
   }
 
   try {

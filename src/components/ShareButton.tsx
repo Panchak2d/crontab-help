@@ -1,15 +1,15 @@
 import { useState } from 'react';
+import { copyText } from '../utils/clipboard';
 
 export function ShareButton() {
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
     const url = window.location.href;
-    try {
-      await navigator.clipboard.writeText(url);
+    if (await copyText(url)) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch {
+    } else {
       window.prompt('Copy this link to share your expression:', url);
     }
   }

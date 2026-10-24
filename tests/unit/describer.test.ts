@@ -33,7 +33,7 @@ describe('describeCronExpression', () => {
   });
 
   it('normalises quartz format before describing', () => {
-    const result = describeCronExpression('0 30 9 * * MON-FRI', 'quartz');
+    const result = describeCronExpression('0 30 9 ? * MON-FRI', 'quartz');
     expect(result.isError).toBe(false);
     expect(result.description.length).toBeGreaterThan(0);
   });

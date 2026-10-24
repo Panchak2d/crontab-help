@@ -56,6 +56,26 @@
   --r-lg: 10px;
 }
 
+/* --- Light theme: token overrides only --- */
+:root { color-scheme: dark; }
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg-base:     #fafafa;
+  --bg-surface:  #ffffff;
+  --bg-elevated: #f0f0f0;
+  --bg-input:    #ffffff;
+  --border:       #d4d4d4;
+  --border-focus: #a3a3a3;
+  --text-primary:   #171717;
+  --text-secondary: #525252;
+  --text-muted:     #737373;
+  --green:  #15803d;
+  --red:    #dc2626;
+  --blue:   #2563eb;
+  --cyan:   #0e7490;
+  --white:  #0a0a0a;
+}
+
 /* --- Reset --- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 16px; -webkit-text-size-adjust: 100%; }
@@ -667,4 +687,193 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   border-radius: 3px;
   padding: 1px 6px;
   white-space: nowrap;
+}
+
+/* ============================================================
+   COPY ACTIONS, TIMEZONE INPUT, KBD
+   ============================================================ */
+.copy-actions { display: flex; flex-wrap: wrap; gap: var(--sp-2); padding: var(--sp-3) var(--sp-6); }
+.share-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.tz-select--invalid { border-color: var(--red); }
+input.tz-select { cursor: text; width: 11rem; }
+kbd {
+  padding: 1px 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.field-pill--error .field-value { color: var(--red); }
+.field-pill--error { box-shadow: inset 0 -2px 0 var(--red); }
+
+/* ============================================================
+   SYNTAX REFERENCE
+   ============================================================ */
+.syntax-reference {
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--bg-surface);
+  margin-top: var(--sp-6);
+}
+.syntax-summary {
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.syntax-summary:hover { color: var(--text-primary); }
+.syntax-scroll { overflow-x: auto; border-top: 1px solid var(--border); }
+.syntax-table { border-collapse: collapse; width: 100%; font-size: var(--text-sm); }
+.syntax-table th,
+.syntax-table td {
+  padding: var(--sp-2) var(--sp-4);
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border);
+}
+.syntax-table tbody tr:last-child th,
+.syntax-table tbody tr:last-child td { border-bottom: none; }
+.syntax-table thead th { color: var(--text-secondary); font-weight: 600; white-space: nowrap; }
+.syntax-table tbody th { color: var(--text-secondary); font-weight: 500; white-space: nowrap; }
+.syntax-table code { font-family: var(--font-mono); color: var(--cyan); font-size: var(--text-xs); }
+.syntax-table .syntax-current { background: rgba(59, 130, 246, 0.08); }
+
+/* ============================================================
+   SCHEDULE BUILDER
+   ============================================================ */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.builder {
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--bg-surface);
+}
+.builder-summary {
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.builder-summary:hover { color: var(--text-primary); }
+.builder-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding: var(--sp-4);
+  border-top: 1px solid var(--border);
+}
+.builder-field {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: var(--sp-3);
+  align-items: start;
+}
+.builder-label {
+  padding-top: 5px;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.builder-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+.builder-select {
+  padding: 5px var(--sp-2);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-family: var(--font-sans);
+  cursor: pointer;
+}
+.builder-select:focus-visible,
+.builder-radio input:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+.builder-radios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-4);
+  width: 100%;
+  padding-top: 3px;
+}
+.builder-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.builder-radio input { accent-color: var(--blue); }
+.builder-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1);
+  width: 100%;
+}
+.builder-chip {
+  position: relative;
+  display: inline-flex;
+  min-width: 34px;
+  cursor: pointer;
+}
+.builder-chip input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.builder-chip span {
+  flex: 1;
+  padding: 3px var(--sp-2);
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  transition: background 0.1s, border-color 0.1s, color 0.1s;
+}
+.builder-chip:hover span { border-color: var(--border-focus); color: var(--text-primary); }
+.builder-chip input:checked + span {
+  color: var(--blue);
+  border-color: var(--blue);
+  background: rgba(59, 130, 246, 0.14);
+  font-weight: 700;
+}
+.builder-chip input:focus-visible + span {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+.builder-hint,
+.builder-note {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+.builder-note { padding: var(--sp-1) 0; }
+
+@media (max-width: 480px) {
+  .builder-field { grid-template-columns: 1fr; gap: var(--sp-1); }
+  .builder-label { padding-top: 0; }
 }
