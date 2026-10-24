@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import type { CronFormat } from '../types';
 import { parseCronExpression } from '../core/parser';
+import { readFromUrl } from './useUrlSync';
 import { describeCronExpression } from '../core/describer';
 
 const DEFAULT_EXPRESSION = '*/5 * * * *';
@@ -8,8 +9,10 @@ const DEFAULT_FORMAT: CronFormat = 'unix';
 const DEFAULT_TIMEZONE = 'UTC';
 
 export function useCronState() {
-  const [expression, setExpression] = useState(DEFAULT_EXPRESSION);
-  const [format, setFormat] = useState<CronFormat>(DEFAULT_FORMAT);
+  // Read the URL before the first render so the sync effect never overwrites it
+  const [initial] = useState(readFromUrl);
+  const [expression, setExpression] = useState(initial.expression || DEFAULT_EXPRESSION);
+  const [format, setFormat] = useState<CronFormat>(initial.format ?? DEFAULT_FORMAT);
   const [timezone, setTimezone] = useState(DEFAULT_TIMEZONE);
 
   // Parse first — validation is cheap and gates the describe call

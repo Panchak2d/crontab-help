@@ -11,18 +11,23 @@ import type { CronFormat } from '../types';
 
 const VALID_FORMATS: CronFormat[] = ['unix', 'quartz', 'github', 'aws'];
 
-function toBase64Url(str: string): string {
-  return btoa(str)
+export function toBase64Url(str: string): string {
+  const bytes = new TextEncoder().encode(str);
+  let binary = '';
+  for (const b of bytes) binary += String.fromCharCode(b);
+  return btoa(binary)
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=+$/, '');
 }
 
-function fromBase64Url(str: string): string {
+export function fromBase64Url(str: string): string {
   try {
     // Restore base64 padding stripped by toBase64Url
     const padded = str + '==='.slice((str.length + 3) % 4);
-    return atob(padded.replace(/-/g, '+').replace(/_/g, '/'));
+    const binary = atob(padded.replace(/-/g, '+').replace(/_/g, '/'));
+    const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+    return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
   } catch {
     return '';
   }
@@ -54,6 +59,10 @@ export function useUrlSync(expression: string, format: CronFormat) {
     const encoded = toBase64Url(expression);
     const hash = `#expr=${encoded}&fmt=${format}`;
     // replaceState keeps the Back button clean — no history entry per keystroke
-    window.history.replaceState(null, '', hash);
+    try {
+      window.history.replaceState(null, '', hash);
+    } catch {
+      // Sandboxed or restricted contexts reject replaceState; sharing is optional
+    }
   }, [expression, format]);
 }

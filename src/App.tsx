@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useCronState } from './hooks/useCronState';
-import { useUrlSync, readFromUrl } from './hooks/useUrlSync';
+import { useUrlSync } from './hooks/useUrlSync';
 import { FormatSelector } from './components/FormatSelector';
 import { CronInput } from './components/CronInput';
 import { Description } from './components/Description';
@@ -20,16 +20,6 @@ export default function App() {
 
   // Cursor field index is UI state — it belongs here, not in the data hook
   const [cursorFieldIndex, setCursorFieldIndex] = useState(-1);
-
-  // Restore expression + format from URL hash on first load
-  useEffect(() => {
-    const { expression: urlExpr, format: urlFmt } = readFromUrl();
-    if (urlExpr) setExpression(urlExpr);
-    if (urlFmt)  setFormat(urlFmt);
-    // setExpression and setFormat are stable useState setters — intentionally
-    // excluded from deps to run only on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // Keep the URL hash in sync so every expression is shareable
   useUrlSync(expression, format);

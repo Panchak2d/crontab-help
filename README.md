@@ -5,7 +5,7 @@
 **Decode any cron expression instantly. See plain English, next run times, and a shareable link.**
 
 [![MIT License](https://img.shields.io/badge/license-MIT-22c55e?style=flat-square)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-51%20passing-22c55e?style=flat-square)](#)
+[![Tests](https://img.shields.io/badge/tests-53%20passing-22c55e?style=flat-square)](#)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-3b82f6?style=flat-square)](https://github.com/Panchak2d/crontab-help/issues)
 
 **[→ Open the tool](https://panchak2d.github.io/crontab-help/)**
@@ -124,7 +124,7 @@ git clone https://github.com/Panchak2d/crontab-help
 cd crontab-help
 npm install
 npm run dev      # http://localhost:5173
-npm test         # 51 unit tests
+npm test         # 53 unit tests
 npm run build    # production build
 ```
 
