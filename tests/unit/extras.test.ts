@@ -27,5 +27,9 @@ describe('buildExplanation', () => {
     expect(out).toContain('Format: Unix');
     expect(out).toContain('Timezone: UTC');
     expect(out).toContain('  1. Mon, Oct 26, 2026, 09:00:00');
+    expect(out).toContain('Language: English (en)');
+    expect(
+      buildExplanation('0 9 * * *', 'unix', 'x', [], 'UTC', 'de'),
+    ).toContain('Language: Deutsch (de)');
   });
 });

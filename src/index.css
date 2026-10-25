@@ -153,6 +153,13 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   background: var(--bg-elevated);
   text-decoration: none;
 }
+.icon-btn { padding: 6px 8px; }
+.icon-btn svg { display: block; }
+.share-btn:focus-visible,
+.github-link:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
 .share-btn--copied {
   border-color: var(--green);
   color: var(--green);
@@ -277,6 +284,9 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   min-height: 52px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-3) var(--sp-4);
 }
 
 .description-text {
@@ -876,4 +886,26 @@ kbd {
 @media (max-width: 480px) {
   .builder-field { grid-template-columns: 1fr; gap: var(--sp-1); }
   .builder-label { padding-top: 0; }
+}
+
+/* ============================================================
+   DESCRIPTION LANGUAGE SELECT
+   ============================================================ */
+.lang-control {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-left: auto;
+}
+.lang-label {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+}
+.lang-select { max-width: 12rem; }
+.lang-note {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
 }

@@ -2,11 +2,13 @@ import { useState } from 'react';
 import type { CronFormat } from '../types';
 import { copyText } from '../utils/clipboard';
 import { buildExplanation } from '../utils/explanation';
+import type { LocaleCode } from '../utils/locale';
 
 interface Props {
   expression: string;
   format: CronFormat;
   description: string;
+  locale: LocaleCode;
   nextDates: Date[];
   timezone: string;
   isValid: boolean;
@@ -14,14 +16,14 @@ interface Props {
 
 type CopiedKind = 'expression' | 'explanation' | null;
 
-export function CopyActions({ expression, format, description, nextDates, timezone, isValid }: Props) {
+export function CopyActions({ expression, format, description, locale, nextDates, timezone, isValid }: Props) {
   const [copied, setCopied] = useState<CopiedKind>(null);
   const hasExpression = expression.trim().length > 0;
 
   async function handleCopy(kind: Exclude<CopiedKind, null>) {
     const text = kind === 'expression'
       ? expression.trim()
-      : buildExplanation(expression, format, description, nextDates, timezone);
+      : buildExplanation(expression, format, description, nextDates, timezone, locale);
     if (!(await copyText(text))) {
       window.prompt('Copy this text:', text);
       return;

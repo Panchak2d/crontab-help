@@ -12,6 +12,8 @@ import { ThemeToggle } from './components/ThemeToggle';
 import { CopyActions } from './components/CopyActions';
 import { SyntaxReference } from './components/SyntaxReference';
 import { ScheduleBuilder } from './components/ScheduleBuilder';
+import { LanguageSelect } from './components/LanguageSelect';
+import { localeDir, localeLangTag } from './utils/locale';
 import { convertExpression } from './core/builder';
 import type { CronFormat } from './types';
 
@@ -21,6 +23,7 @@ export default function App() {
     format,     setFormat,
     timezone,   setTimezone,
     parseResult, describeResult,
+    locale, setLocale, descriptionLocale, localeFailed, localePending,
   } = useCronState();
 
   // Cursor field index is UI state — it belongs here, not in the data hook
@@ -39,6 +42,10 @@ export default function App() {
     if (converted !== null) setExpression(converted);
     setFormat(next);
   }
+
+  // Validator and placeholder messages are English regardless of the chosen locale
+  const isTranslated = !describeResult.isError && expression.trim().length > 0;
+  const descLocale = isTranslated ? descriptionLocale : 'en';
 
   const edgeState = !expression.trim()
     ? 'empty'
@@ -90,15 +97,20 @@ export default function App() {
             description={describeResult.description}
             isError={describeResult.isError}
             isEmpty={!expression.trim()}
-          />
+            lang={localeLangTag(descLocale)}
+            dir={localeDir(descLocale)}
+          >
+            <LanguageSelect locale={locale} failed={localeFailed} onChange={setLocale} />
+          </Description>
 
           <CopyActions
             expression={expression}
             format={format}
             description={describeResult.description}
+            locale={descriptionLocale}
             nextDates={parseResult.isValid ? parseResult.nextDates : []}
             timezone={timezone}
-            isValid={parseResult.isValid && !describeResult.isError}
+            isValid={parseResult.isValid && !describeResult.isError && !localePending}
           />
 
           <FieldExplainer

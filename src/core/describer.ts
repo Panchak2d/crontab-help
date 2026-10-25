@@ -2,6 +2,7 @@ import cronstrue from 'cronstrue';
 import type { CronFormat } from '../types';
 import { normalizeToUnix } from './formats';
 import { validateExpression } from './validator';
+import type { LocaleCode } from '../utils/locale';
 
 export interface DescribeResult {
   description: string;
@@ -14,8 +15,15 @@ export interface DescribeResult {
  * Uses cronstrue after normalizing to Unix 5-field format.
  * Returns a placeholder when the expression is empty so the
  * UI always has something to display.
+ *
+ * Non-English locales must already be loaded (see loadLocale); validator
+ * and placeholder messages are always English.
  */
-export function describeCronExpression(expression: string, format: CronFormat): DescribeResult {
+export function describeCronExpression(
+  expression: string,
+  format: CronFormat,
+  locale: LocaleCode = 'en',
+): DescribeResult {
   const trimmed = expression.trim();
 
   if (!trimmed) {
@@ -29,6 +37,7 @@ export function describeCronExpression(expression: string, format: CronFormat): 
     const unixExpr = normalizeToUnix(trimmed, format);
     const description = cronstrue.toString(unixExpr, {
       use24HourTimeFormat: true,
+      locale,
       throwExceptionOnParseError: true,
     });
     return { description, isError: false };

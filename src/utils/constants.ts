@@ -17,7 +17,7 @@ export const CRON_FORMATS: CronFormatDefinition[] = [
   {
     id: 'quartz',
     label: 'Quartz',
-    description: '6-field format used by Quartz Scheduler, Spring @Scheduled, and AWS Lambda',
+    description: '6-field format used by Quartz Scheduler and Spring @Scheduled',
     placeholder: '0 * * * * *',
     fields: [
       { name: 'second', label: 'Second',     range: '0–59' },
